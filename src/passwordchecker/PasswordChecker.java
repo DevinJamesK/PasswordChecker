@@ -4,6 +4,8 @@
  * Project 01 
  * November 2nd, 2015
  */
+
+// Remove this line to run the .java on its own without the other files.
 package passwordchecker;
 
 import java.io.File;
