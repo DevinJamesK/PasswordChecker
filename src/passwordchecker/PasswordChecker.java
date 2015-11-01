@@ -314,8 +314,8 @@ public class PasswordChecker {
 
     /**
      * Checks if a given char is a special char and returns true if it is.
-     * Strings are actually character arrays and this can be treated as such.
-     * You can only compare two strings enough so we must convert the char to a
+     * Strings are actually character arrays and thus can be treated as such.
+     * You can only compare two strings though so we must convert the char to a
      * string using Character.toString(c)
      *
      * @param c a character
