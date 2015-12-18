@@ -16,6 +16,7 @@ import java.util.Scanner;
 public class PasswordChecker {
 
     //Global Variables
+    public static String olderPasswd = "";
     public static String lastPasswd = "";
 
     /**
@@ -56,6 +57,14 @@ public class PasswordChecker {
 
     /**
      * Call this method when you want to run the program using file input.
+     * File should contain:
+     * older password,
+     * last password,
+     * current password (the one you are trying to set now)
+     * and whether it was accepted or rejected it using a single letter (A/R),
+     * repeat.
+     * 
+     * See example testing file.
      *
      * @param pathToFile
      * @throws FileNotFoundException
@@ -67,18 +76,58 @@ public class PasswordChecker {
         // Creating new file scanner
         File file = new File(pathToFile);
         Scanner in = new Scanner(file);
-
+        boolean expectedPassed;
+        int totalTestCases = 0;
+        int failedTestCases = 0;
+        
         for (int i = 1; in.hasNext(); i++) {
-            // Get next password from file
+            // Get next passwords from file
             String passwd = in.nextLine();
-            // Formating for readable output
-            System.out.println();
-            System.out.println("Test Case: " + i + " ");
-            System.out.println("Input: " + passwd);
-
+            olderPasswd = in.nextLine();
+            lastPasswd = in.nextLine();
+            char expected = in.nextLine().toUpperCase().charAt(0); 
+            
+            expectedPassed = expected == 'A';
+            
             // Checks to make sure inputed password meets requirements
-            verifyPassword(passwd);
+            boolean actualPassed = verifyPassword(passwd);
+            char actualChar;
+            
+            if (actualPassed) {
+                actualChar = 'A';
+            } else {
+                actualChar = 'R';
+            }
+            
+            // Formating for readable output
+            System.out.println("---------------------------------------------");
+            System.out.println("Test Case: " + i + " ");
+            System.out.println("Older Password: : " + olderPasswd);
+            System.out.println("Previous Password: " + lastPasswd);
+            System.out.println("Current Password: " + passwd);
+            System.out.println("Exspected Result: " + expected);
+            System.out.println("Actual Result: " + actualChar);
+            System.out.println();
+            
+            if (actualPassed == expectedPassed) {
+                System.out.println("Test Case: PASSED");
+                totalTestCases++;
+            } else {
+                System.out.println("Test Case: FAILED");
+                totalTestCases++;
+                failedTestCases++;
+            }
         }
+        System.out.println();
+        System.out.println("=============================================\n"
+                + "=============================================");
+        
+        System.out.println("Total Test Cases: " + totalTestCases);
+        System.out.println("Failed Test Cases: " + failedTestCases);
+        
+        System.out.println("=============================================\n"
+                + "=============================================");
+        System.out.println();
     }
 
     /**
@@ -88,7 +137,7 @@ public class PasswordChecker {
      *
      * @param passwd
      */
-    public static void verifyPassword(String passwd) {
+    public static boolean verifyPassword(String passwd) {
 
         // Each variable checks if that requirment as been passed.
         boolean lenPass = checkLength(passwd);
@@ -103,14 +152,20 @@ public class PasswordChecker {
 
         // We don't want to check if the password is similar to a 
         // previous password if this is the first password entered.
-        if (!"".equals(lastPasswd)) {
+        if ((!"".equals(lastPasswd)) && (!"".equals(olderPasswd))) {
 
             /**
              * checkSimilar returns true if the passwords are too similar so we
              * have to not it with '!'. (If the passwords are NOT too similar
              * then that requirement PASSED)
              */
-            similarPass = !checkSimilar(passwd);
+            if (checkSimilar(passwd, lastPasswd) && 
+                    checkSimilar(passwd, olderPasswd)) {
+                similarPass = false;
+            } else {
+                similarPass = true;
+            }
+            
         }
         
         // If all the requirments passed (equal true) then we accept the passwd
@@ -118,6 +173,7 @@ public class PasswordChecker {
                 && specialPass && capPass && lowerPass && similarPass) {
             System.out.println("Password Accepted!");
             lastPasswd = passwd;
+            return true;
         } 
         
         else {
@@ -151,6 +207,7 @@ public class PasswordChecker {
             if (!similarPass) {
                 System.out.println("Password too similar to last password.");
             }
+            return false;
         }
     }
 
@@ -236,10 +293,10 @@ public class PasswordChecker {
      * @param passwd
      * @return
      */
-    public static boolean checkSimilar(String passwd) {
+    public static boolean checkSimilar(String passwd, String otherPasswd) {
         boolean similar = false;
 
-        String prevPassword = lastPasswd.toLowerCase();
+        String prevPassword = otherPasswd.toLowerCase();
         String password = passwd.toLowerCase();
         String substr;
         String substrRev;
